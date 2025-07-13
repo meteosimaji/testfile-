@@ -1962,10 +1962,13 @@ async def cmd_tex(msg: discord.Message, formula: str) -> None:
         )
         return
 
-    plt.rcParams.update({
-        "mathtext.fontset": "cm",
-        "font.family": "serif",
-    })
+    plt.rcParams.update(
+        {
+            "text.usetex": True,
+            "font.family": "serif",
+            "text.latex.preamble": r"\usepackage{amsmath}",
+        }
+    )
 
     # 余白を抑えるため一度描画し、テキストの bbox からキャンバスサイズを求める
     dpi = 300
