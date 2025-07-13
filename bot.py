@@ -1962,23 +1962,40 @@ async def cmd_tex(msg: discord.Message, formula: str) -> None:
         )
         return
 
-    plt.rcParams.update({
-        "mathtext.fontset": "cm",
-        "font.family": "serif",
-    })
+    plt.rcParams.update(
+        {
+            "text.usetex": True,
+            "font.family": "serif",
+            "text.latex.preamble": r"\usepackage{amsmath}",
+        }
+    )
+
 
     # 余白を抑えるため一度描画し、テキストの bbox からキャンバスサイズを求める
     dpi = 300
     pad = 0.05
     fig = plt.figure(dpi=dpi)
-    text = fig.text(0, 0, f"${formula}$", fontsize=20)
-    fig.canvas.draw()
-    bbox = text.get_window_extent()
-    width, height = bbox.width / dpi, bbox.height / dpi
-    fig.set_size_inches(width * (1 + pad), height * (1 + pad))
-    text.set_position((pad / 2, pad / 2))
-    text.set_transform(fig.transFigure)
-    fig.canvas.draw()
+    text = fig.text(
+        0,
+        0,
+        f"${formula}$",
+        fontsize=20,
+        ha="left",
+        va="bottom",
+    )
+    try:
+        fig.canvas.draw()
+        bbox = text.get_window_extent()
+        width, height = bbox.width / dpi, bbox.height / dpi
+        fig.set_size_inches(width * (1 + pad), height * (1 + pad))
+        text.set_position((pad / 2, pad / 2))
+        text.set_transform(fig.transFigure)
+        fig.canvas.draw()
+    except Exception:
+        plt.close(fig)
+        await msg.reply("数式の構文が間違っているよ！")
+        return
+
 
     tmp = tempfile.NamedTemporaryFile(delete=False, suffix=".png")
     path = tmp.name
@@ -1988,8 +2005,9 @@ async def cmd_tex(msg: discord.Message, formula: str) -> None:
         path,
         dpi=dpi,
         transparent=True,
-        bbox_inches="tight",
-        pad_inches=0,
+
+        pad_inches=0.05,
+
     )
     plt.close(fig)
 
