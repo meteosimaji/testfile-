@@ -8,6 +8,7 @@ import logging
 import datetime
 import asyncio
 import base64
+import shutil
 from discord import app_commands
 from cappuccino_agent import CappuccinoAgent
 import json
@@ -1959,6 +1960,13 @@ async def cmd_tex(msg: discord.Message, formula: str) -> None:
     except ModuleNotFoundError:
         await msg.reply(
             "matplotlib モジュールが見つかりません。`pip install matplotlib` を実行してください。"
+        )
+        return
+
+    # Verify external LaTeX tools are available before enabling text.usetex
+    if not shutil.which("latex") or not shutil.which("dvipng"):
+        await msg.reply(
+            "LaTeX 環境 (latex, dvipng) が見つかりません。インストールしてください。"
         )
         return
 
