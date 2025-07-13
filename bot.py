@@ -2000,9 +2000,15 @@ async def cmd_tex(msg: discord.Message, formula: str) -> None:
         text.set_position((pad / 2, pad / 2))
         text.set_transform(fig.transFigure)
         fig.canvas.draw()
-    except Exception:
+    except Exception as e:
         plt.close(fig)
-        await msg.reply("数式の構文が間違っているよ！")
+        err = str(e)
+        if "latex could not be found" in err or "dvipng was not found" in err:
+            await msg.reply(
+                "LaTeX 環境 (latex, dvipng) が見つかりません。インストールしてください。"
+            )
+        else:
+            await msg.reply("数式の構文が間違っているよ！")
         return
 
 
