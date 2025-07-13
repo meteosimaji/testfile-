@@ -1979,13 +1979,18 @@ async def cmd_tex(msg: discord.Message, formula: str) -> None:
         ha="left",
         va="bottom",
     )
-    fig.canvas.draw()
-    bbox = text.get_window_extent()
-    width, height = bbox.width / dpi, bbox.height / dpi
-    fig.set_size_inches(width * (1 + pad), height * (1 + pad))
-    text.set_position((pad / 2, pad / 2))
-    text.set_transform(fig.transFigure)
-    fig.canvas.draw()
+    try:
+        fig.canvas.draw()
+        bbox = text.get_window_extent()
+        width, height = bbox.width / dpi, bbox.height / dpi
+        fig.set_size_inches(width * (1 + pad), height * (1 + pad))
+        text.set_position((pad / 2, pad / 2))
+        text.set_transform(fig.transFigure)
+        fig.canvas.draw()
+    except Exception:
+        plt.close(fig)
+        await msg.reply("数式の構文が間違っているよ！")
+        return
 
     tmp = tempfile.NamedTemporaryFile(delete=False, suffix=".png")
     path = tmp.name
@@ -1995,8 +2000,7 @@ async def cmd_tex(msg: discord.Message, formula: str) -> None:
         path,
         dpi=dpi,
         transparent=True,
-        bbox_inches="tight",
-        pad_inches=0.02,
+        pad_inches=0.05,
     )
     plt.close(fig)
 
