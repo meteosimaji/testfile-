@@ -2003,12 +2003,13 @@ async def cmd_tex(msg: discord.Message, formula: str) -> None:
     except Exception as e:
         plt.close(fig)
         err = str(e)
+        logger.exception("TeX rendering failed: %s", err)
         if "latex could not be found" in err or "dvipng was not found" in err:
             await msg.reply(
                 "LaTeX 環境 (latex, dvipng) が見つかりません。インストールしてください。"
             )
         else:
-            await msg.reply("数式の構文が間違っているよ！")
+            await msg.reply(f"数式の構文が間違っているよ！\n```\n{err}\n```")
         return
 
 
