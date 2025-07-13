@@ -1962,13 +1962,42 @@ async def cmd_tex(msg: discord.Message, formula: str) -> None:
         )
         return
 
-    fig = plt.figure()
-    fig.text(0.5, 0.5, f"${formula}$", fontsize=20, ha="center", va="center")
-    plt.axis("off")
+    plt.rcParams.update({
+        "mathtext.fontset": "cm",
+        "font.family": "serif",
+    })
+
+    # 余白を抑えるため一度描画し、テキストの bbox からキャンバスサイズを求める
+    dpi = 300
+    pad = 0.05
+    fig = plt.figure(dpi=dpi)
+    text = fig.text(
+        0,
+        0,
+        f"${formula}$",
+        fontsize=20,
+        ha="left",
+        va="bottom",
+    )
+    fig.canvas.draw()
+    bbox = text.get_window_extent()
+    width, height = bbox.width / dpi, bbox.height / dpi
+    fig.set_size_inches(width * (1 + pad), height * (1 + pad))
+    text.set_position((pad / 2, pad / 2))
+    text.set_transform(fig.transFigure)
+    fig.canvas.draw()
+
     tmp = tempfile.NamedTemporaryFile(delete=False, suffix=".png")
     path = tmp.name
     tmp.close()
-    await asyncio.to_thread(fig.savefig, path, bbox_inches="tight", pad_inches=0.2)
+    await asyncio.to_thread(
+        fig.savefig,
+        path,
+        dpi=dpi,
+        transparent=True,
+        bbox_inches="tight",
+        pad_inches=0.02,
+    )
     plt.close(fig)
 
     try:
