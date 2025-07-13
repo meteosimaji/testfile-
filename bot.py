@@ -1970,6 +1970,7 @@ async def cmd_tex(msg: discord.Message, formula: str) -> None:
         }
     )
 
+
     # 余白を抑えるため一度描画し、テキストの bbox からキャンバスサイズを求める
     dpi = 300
     pad = 0.05
@@ -1995,6 +1996,7 @@ async def cmd_tex(msg: discord.Message, formula: str) -> None:
         await msg.reply("数式の構文が間違っているよ！")
         return
 
+
     tmp = tempfile.NamedTemporaryFile(delete=False, suffix=".png")
     path = tmp.name
     tmp.close()
@@ -2003,7 +2005,9 @@ async def cmd_tex(msg: discord.Message, formula: str) -> None:
         path,
         dpi=dpi,
         transparent=True,
+
         pad_inches=0.05,
+
     )
     plt.close(fig)
 
